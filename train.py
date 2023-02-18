@@ -1,9 +1,14 @@
 import os
-
+from tqdm import tqdm
 import torch
 import torchvision
-from dataset import Dataloader
+from dataset import MyDataset
 import argparse
+from Config.ModelConfig import epochs
+from Config.LearnerConfig import save_period, batch_size, lr
+from models.Unet import UNET
+from models.UnetLearner import Learner
+from torch.utils.data import DataLoader
 
 if(__name__=="__main__"):
     parser = argparse.ArgumentParser()
@@ -11,11 +16,27 @@ if(__name__=="__main__"):
     parser.add_argument("--test_csv", required=True)
     parser.add_argument("--root_path", default=os.getcwd())
     parser.add_argument("--root_dataset", required=True)
+    parser.add_argument("--batch_size", default=batch_size)
+    parser.add_argument("--lr", default=lr)
+
     opt = parser.parse_args()
 
-    train_dataset = Dataloader.Dataloader(opt, opt.train_csv)
-    test_dataset = Dataloader.Dataloader(opt, opt.test_csv)
+    train_dataset = MyDataset.MyDataset(opt, opt.train_csv, )
+    test_dataset = MyDataset.MyDataset(opt, opt.test_csv)
 
-    while True:
-        v = int(input())
-        train_dataset.test(v)
+    train_loader = DataLoader(train_dataset, batch_size=batch_size)
+    test_loader = DataLoader(test_dataset, batch_size=batch_size)
+
+    model = UNET()
+
+    loss = torch.nn.MSELoss()
+
+    optimizer = torch.optim.Adam(model.parameters(), lr=opt.lr)
+
+    learner = Learner(model, loss, optimizer, train_loader, test_loader)
+    for epoch in range(epochs):
+        train_results = learner.run_epoch(epoch,val=False)
+        test_results = learner.run_epoch(epoch,val=True)
+
+        if(epoch % save_period):
+            learner.save()

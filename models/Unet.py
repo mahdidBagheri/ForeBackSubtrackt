@@ -26,6 +26,7 @@ class UNET(nn.Module):
         if(batch_norm):
             block.add_module(f"up_bn_{n}", nn.BatchNorm2d(nOut))
         block.add_module(f"up_act_{n}", nn.ReLU())
+        return block
 
     def forward(self, X):
         X = self.down1(X)

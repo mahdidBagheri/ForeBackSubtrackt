@@ -1,26 +1,41 @@
 import os
+
+import torch
+from torchvision.transforms import transforms
+
 from Config.DatasetConfig import width,hight
 from torch.utils.data import Dataset
 import pandas as pd
 import cv2
-class Dataloader(Dataset):
-    def __init__(self, opt, csv_path):
-        super(Dataloader,self).__init__()
+class MyDataset(Dataset):
+    def __init__(self, opt, csv_path,):
+        super(MyDataset,self).__init__()
         self.opt = opt
 
         path_to_scv = os.path.join(opt.root_path,opt.root_dataset, csv_path)
         self.df = pd.read_csv(path_to_scv)
         self.df = self.df.loc[self.df['scale'] > 0.6]
-        a=0
+        self.iter = iter(range(len(self.df)))
+
+        transform_list_input = [transforms.ToTensor(),
+                          transforms.Normalize((0.5,), (0.5,))]
+        self.input_transform = transforms.Compose(transform_list_input)
+
+        transform_list_output = [transforms.ToTensor()]
+        self.output_transform = transforms.Compose(transform_list_output)
+
+
     def __len__(self):
         return len(self.df)
+
     def __getitem__(self, index):
         assert index <= len(self)
+
         combined_path = self.df.iloc[index]["img_name"]
         mask_path = self.df.iloc[index]["mask_name"]
         position = self.df.iloc[index]["position"]
         label = self.df.iloc[index]["label"]
-        print(label)
+        # print(label)
         scale = self.df.iloc[index]["scale"]
 
         path_to_mask = os.path.join(self.opt.root_path,self.opt.root_dataset, mask_path)
@@ -28,14 +43,17 @@ class Dataloader(Dataset):
         mask_img = cv2.resize(mask_img,(width,hight))
 
         mask_norm = cv2.normalize(mask_img,None,0, 1.0, cv2.NORM_MINMAX,cv2.CV_32F)
+        # mask_norm_t = torch.from_numpy(mask_norm)
+        mask_norm_t = self.input_transform(mask_norm)
 
         path_to_combined = os.path.join(self.opt.root_path,self.opt.root_dataset, combined_path)
         combined_img = cv2.imread(path_to_combined)
         combined_img = cv2.resize(combined_img,(width,hight))
         combined_norm = cv2.normalize(combined_img,None,0, 1.0, cv2.NORM_MINMAX,cv2.CV_32F)
+        # combined_norm_t = torch.from_numpy(combined_norm)
+        combined_norm_t = self.output_transform(combined_norm)
 
-        print(combined_norm.shape)
-        return combined_norm, mask_norm
+        return combined_norm_t, mask_norm_t
 
     def test(self,index):
         input, output = self[index]
