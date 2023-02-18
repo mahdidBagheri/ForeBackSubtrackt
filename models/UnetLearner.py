@@ -12,10 +12,10 @@ class Learner():
 
     def run_epoch(self,epoch, val=False):
         if not val:
-            pbar = tqdm(self.train_loader, desc=f"epoch {epoch}")
+            pbar = tqdm(self.train_loader, desc=f"val epoch {epoch}")
             self.model.train()
         else:
-            pbar = tqdm(self.test_loader, desc=f"epoch {epoch}")
+            pbar = tqdm(self.test_loader, desc=f"train epoch {epoch}")
             self.model.eval()
 
         outputs = []
@@ -50,18 +50,20 @@ class Learner():
         pass
 
     def test_step(self,batch):
-        pass
+        loss = self.run_batch(batch, val=True)
+        output = OrderedDict({'val_loss': abs(loss.item()),})
+        return output
 
     def test_end(self,outputs):
         pass
 
-    def save(self):
-        pass
+    def save(self, path):
+        torch.save(self.model.state_dict(), path)
 
     def schedule_lr(self):
         pass
 
-    def run_batch(self, batch):
+    def run_batch(self, batch, val=False):
         input = batch[0]
         target = batch[1]
         if(torch.cuda.is_available()):

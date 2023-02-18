@@ -44,4 +44,4 @@ if(__name__=="__main__"):
         scheduler.step()
 
         if(epoch % save_period):
-            learner.save()
+            learner.save(path="model.pt")
