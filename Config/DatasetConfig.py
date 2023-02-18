@@ -1,4 +1,5 @@
 
 hight = 480
 width = 640
-max_data = 80
+train_data_amount = 800
+test_data_amount = 200

@@ -1,3 +1,4 @@
+import numpy as np
 import torch.cuda
 from tqdm import tqdm
 from collections import OrderedDict
@@ -12,18 +13,22 @@ class Learner():
 
     def run_epoch(self,epoch, val=False):
         if not val:
-            pbar = tqdm(self.train_loader, desc=f"val epoch {epoch}")
+            pbar = tqdm(self.train_loader, desc=f"train epoch {epoch}")
             self.model.train()
         else:
-            pbar = tqdm(self.test_loader, desc=f"train epoch {epoch}")
+            pbar = tqdm(self.test_loader, desc=f"val epoch {epoch}")
             self.model.eval()
 
         outputs = []
+        runing_loss = 0
         for i , batch in enumerate(pbar):
             if not val:
                 output = self.train_step(batch)
             else:
                 output = self.test_step(batch)
+
+            runing_loss += output["loss"]
+            output["runing_loss"] = (runing_loss/(i+1))
 
             pbar.set_postfix(output)
             outputs.append(output)
@@ -47,15 +52,21 @@ class Learner():
         return output
 
     def train_end(self,outputs):
-        pass
+        loss_sum = 0
+        for od in outputs:
+            loss_sum += od["loss"]
+        return loss_sum/len(outputs)
 
     def test_step(self,batch):
         loss = self.run_batch(batch, val=True)
-        output = OrderedDict({'val_loss': abs(loss.item()),})
+        output = OrderedDict({'loss': abs(loss.item()),})
         return output
 
     def test_end(self,outputs):
-        pass
+        loss_sum = 0
+        for od in outputs:
+            loss_sum += od["loss"]
+        return loss_sum/len(outputs)
 
     def save(self, path):
         torch.save(self.model.state_dict(), path)

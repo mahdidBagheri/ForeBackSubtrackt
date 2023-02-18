@@ -3,19 +3,19 @@ import os
 import torch
 from torchvision.transforms import transforms
 
-from Config.DatasetConfig import width,hight,max_data
+from Config.DatasetConfig import width,hight
 from torch.utils.data import Dataset
 import pandas as pd
 import cv2
 class MyDataset(Dataset):
-    def __init__(self, opt, csv_path,):
+    def __init__(self, opt, csv_path,data_amount):
         super(MyDataset,self).__init__()
         self.opt = opt
 
         path_to_scv = os.path.join(opt.root_path,opt.root_dataset, csv_path)
         self.df = pd.read_csv(path_to_scv)
         self.df = self.df.loc[self.df['scale'] > 0.6]
-        self.df = self.df.sample(n=max_data)
+        self.df = self.df.sample(n=data_amount)
         self.iter = iter(range(len(self.df)))
 
         transform_list_input = [transforms.ToTensor(),

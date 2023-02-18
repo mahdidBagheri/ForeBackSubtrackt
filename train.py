@@ -4,6 +4,7 @@ import torch
 import torchvision
 from dataset import MyDataset
 import argparse
+from Config.DatasetConfig import train_data_amount, test_data_amount
 from Config.ModelConfig import epochs
 from Config.LearnerConfig import save_period, batch_size, lr
 from models.Unet import UNET
@@ -23,8 +24,8 @@ if(__name__=="__main__"):
 
     opt = parser.parse_args()
 
-    train_dataset = MyDataset.MyDataset(opt, opt.train_csv, )
-    test_dataset = MyDataset.MyDataset(opt, opt.test_csv)
+    train_dataset = MyDataset.MyDataset(opt, opt.train_csv,train_data_amount )
+    test_dataset = MyDataset.MyDataset(opt, opt.test_csv, test_data_amount)
 
     train_loader = DataLoader(train_dataset, batch_size=batch_size)
     test_loader = DataLoader(test_dataset, batch_size=batch_size)
@@ -42,6 +43,8 @@ if(__name__=="__main__"):
         train_results = learner.run_epoch(epoch,val=False)
         test_results = learner.run_epoch(epoch,val=True)
         scheduler.step()
+
+
 
         if(epoch % save_period == 0):
             learner.save(path="model.pt")
