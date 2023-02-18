@@ -43,5 +43,5 @@ if(__name__=="__main__"):
         test_results = learner.run_epoch(epoch,val=True)
         scheduler.step()
 
-        if(epoch % save_period):
+        if(epoch % save_period == 0):
             learner.save(path="model.pt")
