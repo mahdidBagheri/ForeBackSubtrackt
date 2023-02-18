@@ -1,0 +1,4 @@
+torch
+torchvision
+pandas
+opencv-python==4.5.5.62
