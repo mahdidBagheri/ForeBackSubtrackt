@@ -1,5 +1,5 @@
 import os
-
+from Config.DatasetConfig import width,hight
 from torch.utils.data import Dataset
 import pandas as pd
 import cv2
@@ -25,35 +25,17 @@ class Dataloader(Dataset):
 
         path_to_mask = os.path.join(self.opt.root_path,self.opt.root_dataset, mask_path)
         mask_img = cv2.imread(path_to_mask, cv2.IMREAD_GRAYSCALE)
+        mask_img = cv2.resize(mask_img,(width,hight))
+
         mask_norm = cv2.normalize(mask_img,None,0, 1.0, cv2.NORM_MINMAX,cv2.CV_32F)
 
         path_to_combined = os.path.join(self.opt.root_path,self.opt.root_dataset, combined_path)
         combined_img = cv2.imread(path_to_combined)
+        combined_img = cv2.resize(combined_img,(width,hight))
         combined_norm = cv2.normalize(combined_img,None,0, 1.0, cv2.NORM_MINMAX,cv2.CV_32F)
 
+        print(combined_norm.shape)
         return combined_norm, mask_norm
 
     def test(self,index):
-        assert index <= len(self)
-        combined_path = self.df.iloc[index]["img_name"]
-        mask_path = self.df.iloc[index]["mask_name"]
-        position = self.df.iloc[index]["position"]
-        label = self.df.iloc[index]["label"]
-        print(label)
-        scale = self.df.iloc[index]["scale"]
-
-        path_to_mask = os.path.join(self.opt.root_path,self.opt.root_dataset, mask_path)
-        mask_img = cv2.imread(path_to_mask, cv2.IMREAD_GRAYSCALE)
-        mask_norm = cv2.normalize(mask_img,None,0, 1.0, cv2.NORM_MINMAX,cv2.CV_32F)
-
-
-        path_to_combined = os.path.join(self.opt.root_path,self.opt.root_dataset, combined_path)
-        combined_img = cv2.imread(path_to_combined)
-
-        comulated = cv2.addWeighted(combined_img, 0.5, mask_img, 0.5, 1)
-
-        cv2.imshow("C", comulated)
-        cv2.waitKey(1000)
-        cv2.destroyAllWindows()
-
-
+        input, output = self[index]
