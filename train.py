@@ -9,6 +9,7 @@ from Config.LearnerConfig import save_period, batch_size, lr
 from models.Unet import UNET
 from models.UnetLearner import Learner
 from torch.utils.data import DataLoader
+from torch.optim.lr_scheduler import ExponentialLR
 
 if(__name__=="__main__"):
     parser = argparse.ArgumentParser()
@@ -18,6 +19,7 @@ if(__name__=="__main__"):
     parser.add_argument("--root_dataset", required=True)
     parser.add_argument("--batch_size", default=batch_size)
     parser.add_argument("--lr", default=lr)
+    parser.add_argument("--epochs", default=epochs)
 
     opt = parser.parse_args()
 
@@ -28,15 +30,18 @@ if(__name__=="__main__"):
     test_loader = DataLoader(test_dataset, batch_size=batch_size)
 
     model = UNET()
+    if(torch.cuda.is_available()):
+        model = model.cuda()
 
     loss = torch.nn.MSELoss()
-
     optimizer = torch.optim.Adam(model.parameters(), lr=opt.lr)
+    scheduler = ExponentialLR(optimizer, gamma=0.1)
 
     learner = Learner(model, loss, optimizer, train_loader, test_loader)
     for epoch in range(epochs):
         train_results = learner.run_epoch(epoch,val=False)
         test_results = learner.run_epoch(epoch,val=True)
+        scheduler.step()
 
         if(epoch % save_period):
             learner.save()

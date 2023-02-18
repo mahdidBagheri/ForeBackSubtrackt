@@ -1,3 +1,4 @@
+import torch.cuda
 from tqdm import tqdm
 from collections import OrderedDict
 
@@ -63,6 +64,9 @@ class Learner():
     def run_batch(self, batch):
         input = batch[0]
         target = batch[1]
+        if(torch.cuda.is_available()):
+            input = input.cuda()
+            target = target.cuda()
         output = self.model(input)
         loss = self.loss(output,target)
         return loss
