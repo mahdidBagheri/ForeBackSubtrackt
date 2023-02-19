@@ -6,7 +6,7 @@ from dataset import MyDataset
 import argparse
 from Config.DatasetConfig import train_data_amount, test_data_amount
 from Config.ModelConfig import epochs
-from Config.LearnerConfig import save_period, batch_size, lr
+from Config.LearnerConfig import save_period, batch_size, lr, gamma
 from models.Unet import UNET
 from models.UnetLearner import Learner
 from torch.utils.data import DataLoader
@@ -37,7 +37,7 @@ if(__name__=="__main__"):
 
     loss = torch.nn.MSELoss()
     optimizer = torch.optim.Adam(model.parameters(), lr=opt.lr)
-    scheduler = ExponentialLR(optimizer, gamma=0.1)
+    scheduler = ExponentialLR(optimizer, gamma=gamma)
 
     learner = Learner(model, loss, optimizer, train_loader, test_loader)
     for epoch in range(epochs):
