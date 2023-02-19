@@ -86,6 +86,11 @@ class Learner():
         output = self.model(input)
         acc = self.calc_accuracy(output,target)
         loss = self.loss(output,target)
+        torch.cuda.empty_cache()
+        if(torch.cuda.is_available()):
+            input = input.cpu()
+            target = target.cpu()
+
         return loss, acc
 
     def calc_accuracy(self,output, target):
