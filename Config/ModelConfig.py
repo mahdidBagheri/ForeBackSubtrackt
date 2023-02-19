@@ -1,4 +1,4 @@
 
 "============== hyper parameters ==================="
 batch_size = 8
-epochs = 10
+epochs = 100

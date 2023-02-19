@@ -21,6 +21,7 @@ if(__name__=="__main__"):
     parser.add_argument("--batch_size", default=batch_size)
     parser.add_argument("--lr", default=lr)
     parser.add_argument("--epochs", default=epochs)
+    parser.add_argument("--output")
 
     opt = parser.parse_args()
 
@@ -45,4 +46,4 @@ if(__name__=="__main__"):
         scheduler.step()
 
         if(epoch % save_period == 0):
-            learner.save(path="model.pt")
+            learner.save(path=f"{opt.output}/model_{epoch}.pt")
