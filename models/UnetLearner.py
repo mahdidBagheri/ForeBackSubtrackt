@@ -21,6 +21,7 @@ class Learner():
 
         outputs = []
         runing_loss = 0
+        running_acc = 0
         for i , batch in enumerate(pbar):
             if not val:
                 output = self.train_step(batch)
@@ -28,7 +29,9 @@ class Learner():
                 output = self.test_step(batch)
 
             runing_loss += output["loss"]
+            running_acc += output["acc"]
             output["runing_loss"] = (runing_loss/(i+1))
+            output["running_acc"] = (running_acc/(i+1))
 
             pbar.set_postfix(output)
             outputs.append(output)
@@ -44,11 +47,11 @@ class Learner():
         self.optimizer.step()
 
     def train_step(self,batch):
-        loss = self.run_batch(batch)
+        loss, acc = self.run_batch(batch)
         self.optimizer.zero_grad()
         loss.backward()
         self.step()
-        output = OrderedDict({'loss': abs(loss.item())})
+        output = OrderedDict({'loss': abs(loss.item()), 'acc': acc.item()})
         return output
 
     def train_end(self,outputs):
@@ -58,8 +61,8 @@ class Learner():
         return loss_sum/len(outputs)
 
     def test_step(self,batch):
-        loss = self.run_batch(batch, val=True)
-        output = OrderedDict({'loss': abs(loss.item()),})
+        loss, acc = self.run_batch(batch, val=True)
+        output = OrderedDict({'loss': abs(loss.item()),'acc': acc})
         return output
 
     def test_end(self,outputs):
@@ -81,5 +84,11 @@ class Learner():
             input = input.cuda()
             target = target.cuda()
         output = self.model(input)
+        acc = self.calc_accuracy(output,target)
         loss = self.loss(output,target)
-        return loss
+        return loss, acc
+
+    def calc_accuracy(self,output, target):
+        diff = abs(output-target)
+        acc = torch.sum(diff) / (output.size()[0]*output.size()[1]*output.size()[2]*output.size()[3])
+        return acc
