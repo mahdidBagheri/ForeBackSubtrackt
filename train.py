@@ -27,8 +27,8 @@ if(__name__=="__main__"):
     train_dataset = MyDataset.MyDataset(opt, opt.train_csv,train_data_amount )
     test_dataset = MyDataset.MyDataset(opt, opt.test_csv, test_data_amount)
 
-    train_loader = DataLoader(train_dataset, batch_size=batch_size)
-    test_loader = DataLoader(test_dataset, batch_size=batch_size)
+    train_loader = DataLoader(train_dataset, batch_size=batch_size, shuffle=True)
+    test_loader = DataLoader(test_dataset, batch_size=batch_size, shuffle=True)
 
     model = UNET()
     if(torch.cuda.is_available()):
