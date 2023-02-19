@@ -58,6 +58,7 @@ class Learner():
         loss_sum = 0
         for od in outputs:
             loss_sum += od["loss"]
+
         return loss_sum/len(outputs)
 
     def test_step(self,batch):
@@ -83,13 +84,16 @@ class Learner():
         if(torch.cuda.is_available()):
             input = input.cuda()
             target = target.cuda()
-        output = self.model(input)
+        if(val):
+            with torch.no_grad():
+                output = self.model(input)
+        else:
+            output = self.model(input)
+
         acc = self.calc_accuracy(output,target)
         loss = self.loss(output,target)
         torch.cuda.empty_cache()
-        if(torch.cuda.is_available()):
-            input = input.cpu()
-            target = target.cpu()
+
 
         return loss, acc
 
