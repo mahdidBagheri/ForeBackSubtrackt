@@ -99,5 +99,5 @@ class Learner():
 
     def calc_accuracy(self,output, target):
         diff = abs(output-target)
-        acc = torch.sum(diff) / (output.size()[0]*output.size()[1]*output.size()[2]*output.size()[3])
+        acc = 1.0-(torch.sum(diff) / (output.size()[0]*output.size()[1]*output.size()[2]*output.size()[3]))
         return acc
