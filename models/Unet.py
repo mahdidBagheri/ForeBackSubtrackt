@@ -12,7 +12,8 @@ class UNET(nn.Module):
         self.up1 = self.up_conv_block(n=4,nIn=512,nOut=128, is_upsample=False)
         self.up2 = self.up_conv_block(n=5,nIn=128,nOut=32, is_upsample=True)
         self.up3 = self.up_conv_block(n=6,nIn=32,nOut=8, is_upsample=False)
-        self.up4 = self.up_conv_block(n=7,nIn=8,nOut=1, is_upsample=True)
+        self.up4 = self.up_conv_block(n=7,nIn=8,nOut=1, is_upsample=True, batch_norm=False)
+        self.softmax = nn.Softmax(dim=1)
 
     def down_conv_block(self,n,nIn,nOut,is_pooling,batch_norm=True ):
         block = nn.Sequential()

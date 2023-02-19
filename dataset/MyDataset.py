@@ -44,7 +44,7 @@ class MyDataset(Dataset):
 
         mask_norm = cv2.normalize(mask_img,None,0, 1.0, cv2.NORM_MINMAX,cv2.CV_32F)
         # mask_norm_t = torch.from_numpy(mask_norm)
-        mask_norm_t = self.input_transform(mask_norm)
+        mask_norm_t = (self.input_transform(mask_norm) + 1)/2
 
         path_to_combined = os.path.join(self.opt.root_path,self.opt.root_dataset, combined_path)
         combined_img = cv2.imread(path_to_combined)
