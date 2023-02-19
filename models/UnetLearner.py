@@ -63,7 +63,7 @@ class Learner():
 
     def test_step(self,batch):
         loss, acc = self.run_batch(batch, val=True)
-        output = OrderedDict({'loss': abs(loss.item()),'acc': acc})
+        output = OrderedDict({'loss': abs(loss.item()),'acc': acc.item()})
         return output
 
     def test_end(self,outputs):
